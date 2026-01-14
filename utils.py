@@ -36,12 +36,12 @@ def get_smart_gemini_model(api_key, preferred_model=None, excluded_models=None):
             candidates.append(f"models/{preferred_model}")
             
     default_candidates = [
-        "models/gemini-2.0-flash-lite-preview-02-05",
-        "models/gemini-2.0-flash-lite",
-        "models/gemini-1.5-flash",
-        "models/gemini-1.5-flash-8b",
-        "models/gemini-2.0-flash",
-        "models/gemini-2.5-flash-lite",
+        "models/gemini-1.5-flash",      # 1500 RPM / 1M TPM (最も安定)
+        "models/gemini-1.5-flash-8b",   # 高速かつ高クォータ
+        "models/gemini-2.0-flash-lite", # 最新軽量モデル
+        "models/gemini-2.0-flash",      # 最新高速モデル
+        "models/gemini-2.5-flash-lite", # 2.5系は現在クォータが極端に少ない
+        "models/gemini-2.5-flash",
     ]
     for m in default_candidates:
         if m not in candidates and m not in excluded_models:

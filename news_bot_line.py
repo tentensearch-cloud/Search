@@ -122,6 +122,7 @@ class NewsBotLine:
         new_entries = self.fetch_new_entries()
         logger.info(f"新規記事: {len(new_entries)}件")
         
+        processed_any = False
         for entry in new_entries:
             try:
                 result = self.process_entry(entry)
@@ -129,12 +130,18 @@ class NewsBotLine:
                     if self.line.send_message(result):
                         self.history["ids"].append(entry.get('id', entry.get('link')))
                         self.history["titles"].append(utils.clean_html_tags(entry.title))
-                        # 履歴が大きくなりすぎないよう調整 (直近200件)
-                        self.history["titles"] = self.history["titles"][-200:]
-                        self.save_history()
+                        processed_any = True
                         time.sleep(5) # 送信間隔
             except Exception as e:
                 logger.error(f"記事処理エラー: {e}")
+        
+        if processed_any:
+            # 履歴が大きくなりすぎないよう調整 (直近200件)
+            self.history["titles"] = self.history["titles"][-200:]
+            self.history["ids"] = self.history["ids"][-500:]
+            
+        # 常に保存するようにしてGitエラーを防ぐ
+        self.save_history()
 
 if __name__ == "__main__":
     bot = NewsBotLine()
