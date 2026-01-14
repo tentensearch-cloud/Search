@@ -50,6 +50,7 @@ class NewsBotLine:
 
     def fetch_new_entries(self):
         new_entries = []
+        batch_titles = [] # 同一実行内での重複チェック用
         for url in self.rss_feeds:
             if not url: continue
             try:
@@ -58,17 +59,19 @@ class NewsBotLine:
                     entry_id = entry.get('id', entry.get('link'))
                     title = utils.clean_html_tags(entry.title)
                     
-                    # ID重複チェック
+                    # ID重複チェック (保存済み履歴)
                     if entry_id in self.history["ids"]:
                         continue
                     
-                    # 類似度チェック
-                    if utils.is_similar(title, self.history.get("titles", [])):
-                        logger.info(f"類似記事をスキップ: {title}")
+                    # 類似度チェック (保存済み履歴 + 今回のバッチ)
+                    combined_titles = self.history.get("titles", []) + batch_titles
+                    if utils.is_similar(title, combined_titles):
+                        logger.info(f"重複・類似記事をスキップ: {title}")
                         self.history["ids"].append(entry_id) # スキップしたものも再送しないよう記録
                         continue
                         
                     new_entries.append(entry)
+                    batch_titles.append(title)
             except Exception as e:
                 logger.error(f"RSS取得エラー ({url}): {e}")
         return new_entries
