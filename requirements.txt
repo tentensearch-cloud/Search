@@ -1,0 +1,7 @@
+google-generativeai
+feedparser
+requests
+line-bot-sdk
+python-dateutil
+scikit-learn
+numpy
